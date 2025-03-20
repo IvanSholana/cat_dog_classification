@@ -4,6 +4,7 @@ from google.cloud import storage
 import numpy as np
 from PIL import Image
 import io
+import base64
 import logging
 
 # Setup logging
@@ -26,7 +27,7 @@ def load_model_from_gcs():
         logger.info("Model loaded successfully!")
         return model
     except Exception as e:
-        logger.error(f"Failed to load model from GCS: {str(e)}")
+        logger.error(f"Failed to load model from GCS: {e}")
         raise
 
 try:
@@ -41,14 +42,23 @@ def index():
         if request.method == "POST":
             logger.info("Received POST request for prediction")
             file = request.files["file"]
+            
+            # Baca gambar dan simpan ke memori untuk ditampilkan
             image = Image.open(file).resize((128, 128))
             image_array = np.array(image) / 255.0
             image_array = np.expand_dims(image_array, axis=0)
+
+            # Konversi gambar ke base64 untuk ditampilkan di halaman
+            file.seek(0)  # Reset file pointer ke awal
+            image_data = base64.b64encode(file.read()).decode("utf-8")
+
+            # Prediksi
             prediction = model.predict(image_array)[0][0]
             result = "Dog" if prediction > 0.5 else "Cat"
             logger.info(f"Prediction result: {result}")
-            return render_template("index.html", prediction=result)
-        return render_template("index.html", prediction=None)
+
+            return render_template("index.html", prediction=result, image_data=image_data)
+        return render_template("index.html", prediction=None, image_data=None)
     except Exception as e:
         logger.error(f"Error in index route: {str(e)}")
         raise
