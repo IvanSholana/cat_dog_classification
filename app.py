@@ -44,7 +44,7 @@ def index():
             file = request.files["file"]
             
             # Baca gambar dan simpan ke memori untuk ditampilkan
-            image = Image.open(file).resize((128, 128))
+            image = Image.open(file).resize((150, 150))
             image_array = np.array(image) / 255.0
             image_array = np.expand_dims(image_array, axis=0)
 
