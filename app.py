@@ -17,7 +17,7 @@ def load_model_from_gcs():
     try:
         logger.info("Starting to load model from GCS...")
         storage_client = storage.Client()
-        bucket = storage_client.bucket("my-mlops-bucket-2025")
+        bucket = storage_client.bucket("dog-cat-classification")
         blob = bucket.blob("models/model.h5")
         logger.info("Downloading model from GCS...")
         blob.download_to_filename("model.h5")
